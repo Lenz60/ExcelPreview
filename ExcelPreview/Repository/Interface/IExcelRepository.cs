@@ -6,8 +6,12 @@ namespace ExcelPreview.Repository.Interface
     public interface IExcelRepository
     {
         Task<ExcelFileVM> GenerateExcelFileAsync();
-        Task<ExcelFileVM> GenerateExcelFileAsync(List<ExcelData> data);
+        ExcelFileVM GenerateExcelFileSync(List<ExcelData> data);
         Task<List<ExcelData>> GetAllExcelDataAsync();
-        List<ExcelData> GetAllExcelData(); // Keep your existing method
+        List<ExcelData> GetAllExcelData();
+
+        // New method to generate Excel and return temp file path
+        Task<string> GenerateExcelTempFileAsync();
+        string GenerateExcelTempFileSync(List<ExcelData> data);
     }
 }

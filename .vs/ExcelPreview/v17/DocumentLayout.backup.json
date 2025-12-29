@@ -3,6 +3,46 @@
   "WorkspaceRootPath": "E:\\Project\\ExcelPreview\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|solutionrelative:frontend\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|solutionrelative:frontend\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|solutionrelative:frontend\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|solutionrelative:frontend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{74502D0A-33ED-4A65-8522-7E95F33F8CC5}|Frontend\\Frontend.csproj|solutionrelative:frontend\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\repository\\excelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\repository\\excelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\controllers\\excelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\controllers\\excelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\repository\\interface\\iexcelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\repository\\interface\\iexcelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\viewmodel\\excelfilevm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\viewmodel\\excelfilevm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\context\\excelpreviewcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\context\\excelpreviewcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,30 +53,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|e:\\project\\excelpreview\\excelpreview\\models\\exceldata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\Backend.csproj|solutionrelative:excelpreview\\models\\exceldata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|e:\\project\\excelpreview\\excelpreview\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|solutionrelative:excelpreview\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|e:\\project\\excelpreview\\excelpreview\\repository\\interface\\iexcelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|solutionrelative:excelpreview\\repository\\interface\\iexcelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|e:\\project\\excelpreview\\excelpreview\\repository\\excelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|solutionrelative:excelpreview\\repository\\excelrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|e:\\project\\excelpreview\\excelpreview\\controllers\\excelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{52A6E571-A972-4243-9E25-CF939441C306}|ExcelPreview\\ExcelPreview.csproj|solutionrelative:excelpreview\\controllers\\excelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{14A52AA7-D5DC-4E95-B611-08BAC2E51380}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{14A52AA7-D5DC-4E95-B611-08BAC2E51380}|Frontend\\Frontend.csproj|solutionrelative:frontend\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{14A52AA7-D5DC-4E95-B611-08BAC2E51380}|Frontend\\Frontend.csproj|e:\\project\\excelpreview\\frontend\\pages\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{14A52AA7-D5DC-4E95-B611-08BAC2E51380}|Frontend\\Frontend.csproj|solutionrelative:frontend\\pages\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -46,28 +62,148 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 9,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ExcelController.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Controllers\\ExcelController.cs",
+              "RelativeDocumentMoniker": "ExcelPreview\\Controllers\\ExcelController.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Controllers\\ExcelController.cs",
+              "RelativeToolTip": "ExcelPreview\\Controllers\\ExcelController.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABYAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T04:16:11.65Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "IExcelRepository.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
+              "RelativeDocumentMoniker": "ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
+              "RelativeToolTip": "ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T04:17:44.112Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ExcelRepository.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\ExcelRepository.cs",
+              "RelativeDocumentMoniker": "ExcelPreview\\Repository\\ExcelRepository.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\ExcelRepository.cs",
+              "RelativeToolTip": "ExcelPreview\\Repository\\ExcelRepository.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAiwFsAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T04:17:13.511Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Frontend\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Frontend\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-29T07:57:22.105Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "site.js",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\wwwroot\\js\\site.js",
+              "RelativeDocumentMoniker": "Frontend\\wwwroot\\js\\site.js",
+              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\wwwroot\\js\\site.js",
+              "RelativeToolTip": "Frontend\\wwwroot\\js\\site.js",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABwAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-12-29T07:54:23.976Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Frontend\\Views\\Home\\Index.cshtml",
+              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Frontend\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-29T07:53:17.702Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\appsettings.json",
+              "RelativeDocumentMoniker": "Frontend\\appsettings.json",
+              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\appsettings.json",
+              "RelativeToolTip": "Frontend\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-29T07:51:59.88Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "Frontend\\Controllers\\HomeController.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "Frontend\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T07:51:32.473Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ExcelData.cs",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Models\\ExcelData.cs",
-              "RelativeDocumentMoniker": "ExcelPreview\\Models\\ExcelData.cs",
-              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Models\\ExcelData.cs",
-              "RelativeToolTip": "ExcelPreview\\Models\\ExcelData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAApAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Program.cs",
+              "RelativeDocumentMoniker": "ExcelPreview\\Program.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Program.cs",
+              "RelativeToolTip": "ExcelPreview\\Program.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAAC0AAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-29T04:40:15.576Z",
+              "WhenOpened": "2025-12-29T04:22:39.295Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 9,
+              "Title": "ExcelFileVM.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\ViewModel\\ExcelFileVM.cs",
+              "RelativeDocumentMoniker": "ExcelPreview\\ViewModel\\ExcelFileVM.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\ViewModel\\ExcelFileVM.cs",
+              "RelativeToolTip": "ExcelPreview\\ViewModel\\ExcelFileVM.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T05:25:10.844Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "ExcelPreviewContext.cs",
               "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Context\\ExcelPreviewContext.cs",
               "RelativeDocumentMoniker": "ExcelPreview\\Context\\ExcelPreviewContext.cs",
@@ -80,7 +216,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 11,
               "Title": "appsettings.json",
               "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\appsettings.json",
               "RelativeDocumentMoniker": "ExcelPreview\\appsettings.json",
@@ -93,80 +229,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Program.cs",
-              "RelativeDocumentMoniker": "ExcelPreview\\Program.cs",
-              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Program.cs",
-              "RelativeToolTip": "ExcelPreview\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABOAAAAAAAAAA==",
+              "DocumentIndex": 12,
+              "Title": "ExcelData.cs",
+              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Models\\ExcelData.cs",
+              "RelativeDocumentMoniker": "ExcelPreview\\Models\\ExcelData.cs",
+              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Models\\ExcelData.cs",
+              "RelativeToolTip": "ExcelPreview\\Models\\ExcelData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-29T04:22:39.295Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "IExcelRepository.cs",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
-              "RelativeDocumentMoniker": "ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
-              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
-              "RelativeToolTip": "ExcelPreview\\Repository\\Interface\\IExcelRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-29T04:17:44.112Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "ExcelRepository.cs",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\ExcelRepository.cs",
-              "RelativeDocumentMoniker": "ExcelPreview\\Repository\\ExcelRepository.cs",
-              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Repository\\ExcelRepository.cs",
-              "RelativeToolTip": "ExcelPreview\\Repository\\ExcelRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-29T04:17:13.511Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ExcelController.cs",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\ExcelPreview\\Controllers\\ExcelController.cs",
-              "RelativeDocumentMoniker": "ExcelPreview\\Controllers\\ExcelController.cs",
-              "ToolTip": "E:\\Project\\ExcelPreview\\ExcelPreview\\Controllers\\ExcelController.cs",
-              "RelativeToolTip": "ExcelPreview\\Controllers\\ExcelController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-29T04:16:11.65Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\Pages\\Index.cshtml",
-              "RelativeDocumentMoniker": "Frontend\\Pages\\Index.cshtml",
-              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\Pages\\Index.cshtml",
-              "RelativeToolTip": "Frontend\\Pages\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-29T04:15:36.772Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Privacy.cshtml",
-              "DocumentMoniker": "E:\\Project\\ExcelPreview\\Frontend\\Pages\\Privacy.cshtml",
-              "RelativeDocumentMoniker": "Frontend\\Pages\\Privacy.cshtml",
-              "ToolTip": "E:\\Project\\ExcelPreview\\Frontend\\Pages\\Privacy.cshtml",
-              "RelativeToolTip": "Frontend\\Pages\\Privacy.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-29T04:15:35.616Z",
+              "WhenOpened": "2025-12-29T04:40:15.576Z",
               "EditorCaption": ""
             }
           ]

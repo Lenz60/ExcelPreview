@@ -6,8 +6,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Bytescout.Spreadsheet" Version="4.7.1.2054" />
-  </ItemGroup>
-
 </Project>

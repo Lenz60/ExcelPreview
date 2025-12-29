@@ -142,3 +142,4 @@ E:\Project\ExcelPreview\ExcelPreview\obj\Debug\net6.0\refint\Backend.dll
 E:\Project\ExcelPreview\ExcelPreview\obj\Debug\net6.0\Backend.pdb
 E:\Project\ExcelPreview\ExcelPreview\obj\Debug\net6.0\Backend.genruntimeconfig.cache
 E:\Project\ExcelPreview\ExcelPreview\obj\Debug\net6.0\ref\Backend.dll
+E:\Project\ExcelPreview\ExcelPreview\obj\Debug\net6.0\Backend.sourcelink.json

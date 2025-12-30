@@ -1,6 +1,7 @@
 ﻿using Backend.Context;
 using Backend.Models;
 using Backend.ViewModel;
+using Bytescout.Spreadsheet;
 using ExcelPreview.Repository.Interface;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -105,6 +106,236 @@ namespace ExcelPreview.Repository
                     GC.WaitForPendingFinalizers();
                     GC.Collect(); // Second collection to clean up finalizer queue
                 }
+            }
+        }
+
+        public byte[] GenerateExcelAsPDF(List<ExcelData> data)
+        {
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
+
+            if (!File.Exists(templatePath))
+            {
+                throw new FileNotFoundException($"Excel template not found at: {templatePath}");
+            }
+
+            byte[] pdfContent = null;
+            ExcelPackage template = null;
+            ExcelPackage package = null;
+            FileStream templateStream = null;
+
+            try
+            {
+                // Set EPPlus license context
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                // Use FileStream to load template with proper control
+                templateStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                template = new ExcelPackage(templateStream);
+                package = new ExcelPackage();
+
+                // Reuse existing composable functions
+                ExcelWorksheet worksheet = PrepareWorksheet(template, package);
+                PopulateWorksheetAndCalculate(worksheet, package, data);
+
+                // Convert to PDF using EPPlus (Note: EPPlus doesn't have built-in PDF export)
+                // We'll need to save as Excel first, then convert to PDF using another method
+                var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
+                var tempPdfPath = Path.Combine(Path.GetTempPath(), $"temp_pdf_{Guid.NewGuid():N}.pdf");
+
+                try
+                {
+                    // Save Excel file temporarily
+                    package.SaveAs(new FileInfo(tempExcelPath));
+
+                    // For PDF conversion, we'll use Bytescout since it supports PDF export
+                    ConvertExcelToPDF(tempExcelPath, tempPdfPath);
+
+                    // Read PDF content
+                    pdfContent = File.ReadAllBytes(tempPdfPath);
+                }
+                finally
+                {
+                    // Clean up temp files
+                    try
+                    {
+                        if (File.Exists(tempExcelPath))
+                            File.Delete(tempExcelPath);
+                        if (File.Exists(tempPdfPath))
+                            File.Delete(tempPdfPath);
+                    }
+                    catch { }
+                }
+
+                return pdfContent;
+            }
+            finally
+            {
+                // Dispose resources in proper order
+                try
+                {
+                    package?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    template?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    templateStream?.Dispose();
+                }
+                catch { }
+
+                // Perform controlled garbage collection after disposal
+                if (pdfContent != null)
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                }
+            }
+        }
+
+
+
+        private void ConvertExcelToPDF(string excelPath, string pdfPath)
+        {
+            Bytescout.Spreadsheet.Spreadsheet spreadsheet = null;
+
+            try
+            {
+                spreadsheet = new Bytescout.Spreadsheet.Spreadsheet();
+                spreadsheet.LoadFromFile(excelPath);
+
+                // Force calculation to ensure charts are updated
+                spreadsheet.Workbook.Calculate();
+                Thread.Sleep(200);
+
+                // For Bytescout Spreadsheet 4.x, use direct SaveAsPDF without options
+                // or try to find the correct options class
+                try
+                {
+                    // Option 1: Try with basic PDF export (most compatible)
+                    spreadsheet.SaveAsPDF(pdfPath);
+                }
+                catch
+                {
+                    // Option 2: Try worksheet-specific PDF export
+                    if (spreadsheet.Workbook.Worksheets.Count > 0)
+                    {
+                        spreadsheet.Workbook.Worksheets[0].SaveAsPDF(pdfPath);
+                    }
+                }
+
+                Thread.Sleep(300);
+            }
+            finally
+            {
+                try
+                {
+                    spreadsheet?.Dispose();
+                }
+                catch { }
+
+                // Controlled garbage collection
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+        }
+
+
+        /// <summary>
+        /// Generates Excel as PDF and returns temporary file path - async version
+        /// </summary>
+        /// <returns>Path to temporary PDF file</returns>
+        public async Task<string> GenerateExcelAsPDFTempFileAsync()
+        {
+            var data = await GetAllExcelDataAsync();
+            return GenerateExcelAsPDFTempFile(data);
+        }
+
+        /// <summary>
+        /// Generates Excel as PDF and returns temporary file path using composable functions
+        /// </summary>
+        /// <param name="data">Data to include</param>
+        /// <returns>Path to temporary PDF file</returns>
+        public string GenerateExcelAsPDFTempFile(List<ExcelData> data)
+        {
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
+
+            if (!File.Exists(templatePath))
+            {
+                throw new FileNotFoundException($"Excel template not found at: {templatePath}");
+            }
+
+            ExcelPackage template = null;
+            ExcelPackage package = null;
+            FileStream templateStream = null;
+            var tempPdfPath = Path.Combine(Path.GetTempPath(), $"pdf_{Guid.NewGuid():N}.pdf");
+
+            try
+            {
+                // Set EPPlus license context
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                // Use FileStream to load template
+                templateStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                template = new ExcelPackage(templateStream);
+                package = new ExcelPackage();
+
+                // Reuse existing composable functions
+                ExcelWorksheet worksheet = PrepareWorksheet(template, package);
+                PopulateWorksheetAndCalculateForTempFile(worksheet, package, data);
+
+                // Save Excel temporarily, then convert to PDF
+                var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
+
+                try
+                {
+                    package.SaveAs(new FileInfo(tempExcelPath));
+                    ConvertExcelToPDF(tempExcelPath, tempPdfPath);
+                }
+                finally
+                {
+                    try
+                    {
+                        if (File.Exists(tempExcelPath))
+                            File.Delete(tempExcelPath);
+                    }
+                    catch { }
+                }
+
+                return tempPdfPath;
+            }
+            finally
+            {
+                // Dispose resources in proper order
+                try
+                {
+                    package?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    template?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    templateStream?.Dispose();
+                }
+                catch { }
+
+                // Controlled garbage collection
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
             }
         }
 

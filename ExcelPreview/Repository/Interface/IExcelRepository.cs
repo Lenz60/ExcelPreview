@@ -13,5 +13,10 @@ namespace ExcelPreview.Repository.Interface
         // New method to generate Excel and return temp file path
         Task<string> GenerateExcelTempFileAsync();
         string GenerateExcelTempFileSync(List<ExcelData> data);
+
+        // New PDF generation methods
+        byte[] GenerateExcelAsPDF(List<ExcelData> data);
+        string GenerateExcelAsPDFTempFile(List<ExcelData> data);
+        Task<string> GenerateExcelAsPDFTempFileAsync();
     }
 }

@@ -18,11 +18,13 @@ namespace Frontend.Controllers
         public IActionResult Index()
         {
             ViewBag.ApiUrl = _configuration["ApiSettings:ApiUrlBE"];
+            Console.WriteLine("API URL: " + ViewBag.ApiUrl);
             return View();
         }
 
         public IActionResult Privacy()
         {
+            ViewBag.ApiUrl = _configuration["ApiSettings:ApiUrlBE"];
             return View();
         }
 

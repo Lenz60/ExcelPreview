@@ -1,56 +1,113 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿$(document).ready(function () {
+    const ApiUrl = 'https://localhost:7086';
 
-// Write your JavaScript code.
-$(document).ready(function () {
+    console.log("API URL : ", ApiUrl)
 
+    // Download Excel file
     $('#BtnView').click(function () {
-        // Get the API URL from ViewBag or use a fallback
-        const apiUrl = window.apiUrl || 'https://localhost:7086';
+        downloadExcelFile();
+    });
 
-        //console.log('Button clicked');
+    // Preview Excel file
+    $('#BtnPreview').click(function () {
+        previewExcelFile();
+    });
 
+    function downloadExcelFile() {
+        // Get temp file path first
         $.ajax({
-            url: `${apiUrl}/api/excel/download`,
+            url: ApiUrl + "/api/excel/temp-path",
             type: 'GET',
-            xhrFields: {
-                responseType: 'blob' // Important for binary data
-            },
-            success: function (data, status, xhr) {
-                // Get filename from Content-Disposition header or use default
-                const contentDisposition = xhr.getResponseHeader('Content-Disposition');
-                let filename = 'GeneratedExcelFile.xlsx';
+            success: function (response) {
+                console.log("Response : ", response);
+                // Download using the temp file name
+                const downloadUrl = ApiUrl +`/api/excel/download-temp/${response.fileName}`;
 
-                if (contentDisposition) {
-                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                    if (filenameMatch && filenameMatch[1]) {
-                        filename = filenameMatch[1].replace(/['"]/g, '');
-                    }
-                }
-
-                // Create blob and download
-                const blob = new Blob([data], {
-                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                });
-
+                // Create invisible download link
                 const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = filename;
+                link.href = downloadUrl;
+                link.download = response.fileName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                // Clean up the blob URL
-                window.URL.revokeObjectURL(link.href);
-
-                console.log('Excel file downloaded successfully');
+                console.log('Excel file download initiated:', response.fileName);
             },
             error: function (xhr, status, error) {
                 console.error('Error generating Excel file:', error);
-                console.error('Status:', status);
-                console.error('Response:', xhr.responseText);
-                alert('Failed to download Excel file. Please try again.');
+                alert('Failed to generate Excel file. Please try again.');
             }
         });
-    });
+    }
+
+    function previewExcelFile() {
+        // Show modal
+        $('#excelPreviewModal').modal('show');
+
+        // Show loading
+        $('#loadingSpinner').show();
+        $('#excelPreviewContainer').hide();
+        $('#errorMessage').hide();
+
+        // Get temp file path first
+        $.ajax({
+            url: ApiUrl + `/api/excel/temp-path`,
+            type: 'GET',
+            success: function (response) {
+                console.log("Response : ", response);
+                console.log('Temp file created for preview:', response.fileName);
+
+                // Now get the file content for preview using the temp endpoint
+                $.ajax({
+                    url: ApiUrl +`/api/excel/download-temp/${response.fileName}`,
+                    type: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data) {
+                        const fileReader = new FileReader();
+                        fileReader.onload = function (e) {
+                            try {
+                                const arrayBuffer = e.target.result;
+                                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+                                // Get first sheet
+                                const firstSheetName = workbook.SheetNames[0];
+                                const worksheet = workbook.Sheets[firstSheetName];
+
+                                // Convert to HTML
+                                const htmlTable = XLSX.utils.sheet_to_html(worksheet);
+
+                                // Display in modal
+                                $('#excelTableContainer').html(htmlTable);
+                                $('#excelTableContainer table').addClass('table table-striped table-bordered table-sm');
+
+                                $('#loadingSpinner').hide();
+                                $('#excelPreviewContainer').show();
+
+                            } catch (error) {
+                                showError('Failed to parse Excel file: ' + error.message);
+                            }
+                        };
+
+                        fileReader.readAsArrayBuffer(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error downloading temp file:', error);
+                        showError('Failed to load Excel file for preview.');
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Error generating temp file:', error);
+                showError('Failed to generate Excel file for preview.');
+            }
+        });
+    }
+
+    function showError(message) {
+        $('#loadingSpinner').hide();
+        $('#excelPreviewContainer').hide();
+        $('#errorMessage').text(message).show();
+    }
 });

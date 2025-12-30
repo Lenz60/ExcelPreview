@@ -72,6 +72,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
+            },
+            "Ulid": {
+              "target": "Package",
+              "version": "[1.4.1, )"
             }
           },
           "imports": [

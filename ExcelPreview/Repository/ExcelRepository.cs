@@ -33,63 +33,61 @@ namespace ExcelPreview.Repository
         public async Task<ExcelFileVM> GenerateExcelFileAsync()
         {
             var data = await GetAllExcelDataAsync();
-            return await GenerateExcelFileAsync(data);
+            return GenerateExcelFileSync(data);
         }
-        public async Task<ExcelFileVM> GenerateExcelFileAsync(List<ExcelData> data)
+
+        public ExcelFileVM GenerateExcelFileSync(List<ExcelData> data)
         {
-            return await Task.Run(() =>
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
+
+            if (!File.Exists(templatePath))
             {
-                // Get the path to the existing Excel template
-                var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
+                throw new FileNotFoundException($"Excel template not found at: {templatePath}");
+            }
 
-                // Check if template file exists
-                if (!File.Exists(templatePath))
-                {
-                    throw new FileNotFoundException($"Excel template not found at: {templatePath}");
-                }
+            var tempDir = Path.GetTempPath();
+            var tempTemplatePath = Path.Combine(tempDir, $"template_{Guid.NewGuid():N}.xlsx");
+            var tempOutputPath = Path.Combine(tempDir, $"output_{Guid.NewGuid():N}.xlsx");
 
-                // Load the existing Excel file
+            try
+            {
+                File.Copy(templatePath, tempTemplatePath, true);
+
                 var spreadsheet = new Spreadsheet();
-                spreadsheet.LoadFromFile(templatePath);
+                spreadsheet.LoadFromFile(tempTemplatePath);
 
-                // Get the first worksheet
                 var worksheet = spreadsheet.Workbook.Worksheets[0];
-
-                // Iterate through all data records using foreach
-                int currentRow = 3; // Start at row 4 (0-based indexing)
+                int currentRow = 3;
 
                 foreach (var record in data)
                 {
-                    // Place Name in column C (column index 2)
+                    worksheet.Cell(currentRow, 1).Value = record.Id;
                     worksheet.Cell(currentRow, 2).Value = record.Name;
 
-                    // Parse Value to numeric (double) before placing in column D (column index 3)
                     if (double.TryParse(record.Value, out double numericValue))
                     {
                         worksheet.Cell(currentRow, 3).Value = numericValue;
                     }
                     else
                     {
-                        // If parsing fails, set to 0 or keep original string
-                        worksheet.Cell(currentRow, 3).Value = 0; // or record.Value for original string
+                        worksheet.Cell(currentRow, 3).Value = 0;
                     }
 
-                    currentRow++; // Move to next row for next record
+                    currentRow++;
                 }
 
-                // Generate temporary file path for the modified file
-                var tempPath = Path.GetTempPath();
+                spreadsheet.SaveAsXLSX(tempOutputPath);
+                spreadsheet.Dispose();
+                spreadsheet = null;
+
+                // Force garbage collection
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                Thread.Sleep(200);
+
+                var fileContent = File.ReadAllBytes(tempOutputPath);
                 var fileName = $"ExcelData_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-                var tempFilePath = Path.Combine(tempPath, fileName);
-
-                // Save the modified file to temporary location
-                spreadsheet.SaveAsXLSX(tempFilePath);
-
-                // Read the file content for response
-                var fileContent = File.ReadAllBytes(tempFilePath);
-
-                // Clean up temporary file
-                File.Delete(tempFilePath);
 
                 return new ExcelFileVM
                 {
@@ -97,7 +95,95 @@ namespace ExcelPreview.Repository
                     FileName = fileName,
                     ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 };
-            });
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(tempTemplatePath))
+                        File.Delete(tempTemplatePath);
+
+                    if (File.Exists(tempOutputPath))
+                        File.Delete(tempOutputPath);
+                }
+                catch { }
+            }
+        }
+
+        // NEW METHOD: Generate Excel and return temporary file path (async)
+        public async Task<string> GenerateExcelTempFileAsync()
+        {
+            var data = await GetAllExcelDataAsync();
+            return GenerateExcelTempFileSync(data);
+        }
+
+        // NEW METHOD: Generate Excel and return temporary file path (sync)
+        public string GenerateExcelTempFileSync(List<ExcelData> data)
+        {
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
+
+            if (!File.Exists(templatePath))
+            {
+                throw new FileNotFoundException($"Excel template not found at: {templatePath}");
+            }
+
+            var tempDir = Path.GetTempPath();
+            var tempTemplatePath = Path.Combine(tempDir, $"template_{Guid.NewGuid():N}.xlsx");
+            var tempOutputPath = Path.Combine(tempDir, $"output_{Guid.NewGuid():N}.xlsx");
+
+            try
+            {
+                File.Copy(templatePath, tempTemplatePath, true);
+
+                var spreadsheet = new Spreadsheet();
+                spreadsheet.LoadFromFile(tempTemplatePath);
+
+                var worksheet = spreadsheet.Workbook.Worksheets[0];
+                int currentRow = 3;
+
+                foreach (var record in data)
+                {
+                    worksheet.Cell(currentRow, 1).Value = record.Id;
+                    worksheet.Cell(currentRow, 2).Value = record.Name;
+
+                    if (double.TryParse(record.Value, out double numericValue))
+                    {
+                        worksheet.Cell(currentRow, 3).Value = numericValue;
+                    }
+                    else
+                    {
+                        worksheet.Cell(currentRow, 3).Value = 0;
+                    }
+
+                    currentRow++;
+                }
+
+                spreadsheet.SaveAsXLSX(tempOutputPath);
+                spreadsheet.Dispose();
+                spreadsheet = null;
+
+                // Force garbage collection
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                Thread.Sleep(200);
+
+                // Return the temporary file path instead of reading the file content
+                return tempOutputPath;
+            }
+            finally
+            {
+                try
+                {
+                    // Only delete the template file, keep the output file
+                    if (File.Exists(tempTemplatePath))
+                        File.Delete(tempTemplatePath);
+
+                    // NOTE: tempOutputPath is NOT deleted here since we're returning it
+                    // The caller is responsible for cleaning up this file when done
+                }
+                catch { }
+            }
         }
     }
 }

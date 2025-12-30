@@ -1,11 +1,10 @@
 ﻿using Backend.Context;
 using Backend.Models;
 using Backend.ViewModel;
-using Bytescout.Spreadsheet;
-using Bytescout.Spreadsheet.Constants;
 using ExcelPreview.Repository.Interface;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 namespace ExcelPreview.Repository
 {
@@ -45,48 +44,30 @@ namespace ExcelPreview.Repository
                 throw new FileNotFoundException($"Excel template not found at: {templatePath}");
             }
 
-            var tempDir = Path.GetTempPath();
-            var tempTemplatePath = Path.Combine(tempDir, $"template_{Guid.NewGuid():N}.xlsx");
-            var tempOutputPath = Path.Combine(tempDir, $"output_{Guid.NewGuid():N}.xlsx");
+            byte[] fileContent = null;
+            ExcelPackage template = null;
+            ExcelPackage package = null;
+            FileStream templateStream = null;
 
             try
             {
-                File.Copy(templatePath, tempTemplatePath, true);
+                // Set EPPlus license context (required for EPPlus 5.0+)
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-                var spreadsheet = new Spreadsheet();
-                spreadsheet.LoadFromFile(tempTemplatePath);
+                // Use FileStream to load template with leaveOpen = true for better control
+                templateStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                template = new ExcelPackage(templateStream);
+                package = new ExcelPackage();
 
-                var worksheet = spreadsheet.Workbook.Worksheets[0];
-                int currentRow = 3;
+                // Get the first worksheet from template
+                ExcelWorksheet worksheet = PrepareWorksheet(template, package);
 
-                foreach (var record in data)
-                {
-                    worksheet.Cell(currentRow, 1).Value = record.Id;
-                    worksheet.Cell(currentRow, 2).Value = record.Name;
+                // Place data and perform calculations
+                PopulateWorksheetAndCalculate(worksheet, package, data);
 
-                    if (double.TryParse(record.Value, out double numericValue))
-                    {
-                        worksheet.Cell(currentRow, 3).Value = numericValue;
-                    }
-                    else
-                    {
-                        worksheet.Cell(currentRow, 3).Value = 0;
-                    }
+                // Get file content as byte array
+                fileContent = package.GetAsByteArray();
 
-                    currentRow++;
-                }
-
-                spreadsheet.SaveAsXLSX(tempOutputPath);
-                spreadsheet.Dispose();
-                spreadsheet = null;
-
-                // Force garbage collection
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                Thread.Sleep(200);
-
-                var fileContent = File.ReadAllBytes(tempOutputPath);
                 var fileName = $"ExcelData_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
                 return new ExcelFileVM
@@ -98,16 +79,85 @@ namespace ExcelPreview.Repository
             }
             finally
             {
+                // Dispose resources in proper order
                 try
                 {
-                    if (File.Exists(tempTemplatePath))
-                        File.Delete(tempTemplatePath);
-
-                    if (File.Exists(tempOutputPath))
-                        File.Delete(tempOutputPath);
+                    package?.Dispose();
                 }
                 catch { }
+
+                try
+                {
+                    template?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    templateStream?.Dispose();
+                }
+                catch { }
+
+                // Perform controlled garbage collection after disposal
+                if (fileContent != null)
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect(); // Second collection to clean up finalizer queue
+                }
             }
+        }
+
+        private ExcelWorksheet PrepareWorksheet(ExcelPackage template, ExcelPackage package)
+        {
+            ExcelWorksheet worksheet;
+
+            if (template.Workbook.Worksheets.Count > 0)
+            {
+                // Copy the first worksheet from template
+                var templateWorksheet = template.Workbook.Worksheets[0];
+                worksheet = package.Workbook.Worksheets.Add(templateWorksheet.Name, templateWorksheet);
+            }
+            else
+            {
+                // Create new worksheet if template doesn't have one
+                worksheet = package.Workbook.Worksheets.Add("Sheet1");
+            }
+
+            return worksheet;
+        }
+
+
+        private void PopulateWorksheetAndCalculate(ExcelWorksheet worksheet, ExcelPackage package, List<ExcelData> data)
+        {
+            int currentRow = 4; // Starting from row 4
+
+            foreach (var record in data)
+            {
+                // Place ID in column B (2)
+                worksheet.Cells[currentRow, 2].Value = record.Id;
+
+                // Place Name in column C (3)
+                worksheet.Cells[currentRow, 3].Value = record.Name;
+
+                // Place Value in column D (4), converting to numeric if possible
+                if (double.TryParse(record.Value, out double numericValue))
+                {
+                    worksheet.Cells[currentRow, 4].Value = numericValue;
+                }
+                else
+                {
+                    worksheet.Cells[currentRow, 4].Value = 0;
+                }
+
+                currentRow++;
+            }
+
+            // Force calculation to ensure charts and formulas are updated
+            package.Workbook.Calculate();
+
+            // Allow calculation to complete
+            Thread.Sleep(100);
         }
 
         // NEW METHOD: Generate Excel and return temporary file path (async)
@@ -117,7 +167,7 @@ namespace ExcelPreview.Repository
             return GenerateExcelTempFileSync(data);
         }
 
-        // NEW METHOD: Generate Excel and return temporary file path (sync)
+        // NEW METHOD: Generate Excel and return temporary file path (sync) - Updated to use EPPlus with FileStream
         public string GenerateExcelTempFileSync(List<ExcelData> data)
         {
             var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
@@ -131,59 +181,120 @@ namespace ExcelPreview.Repository
             var tempTemplatePath = Path.Combine(tempDir, $"template_{Guid.NewGuid():N}.xlsx");
             var tempOutputPath = Path.Combine(tempDir, $"output_{Guid.NewGuid():N}.xlsx");
 
+            ExcelPackage template = null;
+            ExcelPackage package = null;
+            FileStream tempTemplateStream = null;
+            FileStream outputStream = null;
+
             try
             {
+                // Set EPPlus license context
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                // Copy template to temp location
                 File.Copy(templatePath, tempTemplatePath, true);
 
-                var spreadsheet = new Spreadsheet();
-                spreadsheet.LoadFromFile(tempTemplatePath);
+                // Use FileStream to load template with proper stream management
+                tempTemplateStream = new FileStream(tempTemplatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                template = new ExcelPackage(tempTemplateStream);
+                package = new ExcelPackage();
 
-                var worksheet = spreadsheet.Workbook.Worksheets[0];
-                int currentRow = 3;
+                // Get the first worksheet from template
+                ExcelWorksheet worksheet = PrepareWorksheet(template, package);
 
-                foreach (var record in data)
-                {
-                    worksheet.Cell(currentRow, 1).Value = record.Id;
-                    worksheet.Cell(currentRow, 2).Value = record.Name;
+                // Place data and perform calculations (with longer wait for temp file operations)
+                PopulateWorksheetAndCalculateForTempFile(worksheet, package, data);
 
-                    if (double.TryParse(record.Value, out double numericValue))
-                    {
-                        worksheet.Cell(currentRow, 3).Value = numericValue;
-                    }
-                    else
-                    {
-                        worksheet.Cell(currentRow, 3).Value = 0;
-                    }
+                // Create output stream with FileStream for better control
+                outputStream = new FileStream(tempOutputPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                package.SaveAs(outputStream);
 
-                    currentRow++;
-                }
+                // Ensure all data is written to disk
+                outputStream.Flush();
+                outputStream.Close();
+                outputStream.Dispose();
+                outputStream = null;
 
-                spreadsheet.SaveAsXLSX(tempOutputPath);
-                spreadsheet.Dispose();
-                spreadsheet = null;
+                // Allow file system to complete operations
+                Thread.Sleep(300);
 
-                // Force garbage collection
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                Thread.Sleep(200);
-
-                // Return the temporary file path instead of reading the file content
                 return tempOutputPath;
             }
             finally
             {
+                // Dispose resources in proper order
                 try
                 {
-                    // Only delete the template file, keep the output file
-                    if (File.Exists(tempTemplatePath))
-                        File.Delete(tempTemplatePath);
-
-                    // NOTE: tempOutputPath is NOT deleted here since we're returning it
-                    // The caller is responsible for cleaning up this file when done
+                    outputStream?.Dispose();
                 }
                 catch { }
+
+                try
+                {
+                    package?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    template?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    tempTemplateStream?.Dispose();
+                }
+                catch { }
+
+                // Clean up temporary template file
+                try
+                {
+                    if (File.Exists(tempTemplatePath))
+                        File.Delete(tempTemplatePath);
+                }
+                catch { }
+
+                // Perform controlled garbage collection after all disposals
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect(); // Second collection to ensure cleanup
+
+                // NOTE: tempOutputPath is NOT deleted here since we're returning it
+                // The caller is responsible for cleaning up this file when done
             }
+        }
+
+        private void PopulateWorksheetAndCalculateForTempFile(ExcelWorksheet worksheet, ExcelPackage package, List<ExcelData> data)
+        {
+            int currentRow = 4; // Starting from row 4
+
+            foreach (var record in data)
+            {
+                // Place ID in column B (2)
+                worksheet.Cells[currentRow, 2].Value = record.Id;
+
+                // Place Name in column C (3)
+                worksheet.Cells[currentRow, 3].Value = record.Name;
+
+                // Place Value in column D (4), converting to numeric if possible
+                if (double.TryParse(record.Value, out double numericValue))
+                {
+                    worksheet.Cells[currentRow, 4].Value = numericValue;
+                }
+                else
+                {
+                    worksheet.Cells[currentRow, 4].Value = 0;
+                }
+
+                currentRow++;
+            }
+
+            // Force calculation for temp file operations
+            package.Workbook.Calculate();
+
+            // Allow calculation to complete - longer wait for temp file operations
+            Thread.Sleep(200);
         }
     }
 }

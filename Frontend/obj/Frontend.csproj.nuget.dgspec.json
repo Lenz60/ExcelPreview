@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "e:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj": {}
+    "E:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj": {}
   },
   "projects": {
-    "e:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj": {
+    "E:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "e:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj",
+        "projectUniqueName": "E:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj",
         "projectName": "Frontend",
-        "projectPath": "e:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj",
+        "projectPath": "E:\\Project\\ExcelPreview\\Frontend\\Frontend.csproj",
         "packagesPath": "C:\\Users\\rafly.wicaksana\\.nuget\\packages\\",
-        "outputPath": "e:\\Project\\ExcelPreview\\Frontend\\obj\\",
+        "outputPath": "E:\\Project\\ExcelPreview\\Frontend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

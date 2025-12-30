@@ -19,18 +19,19 @@
             url: ApiUrl + "/api/excel/temp-path",
             type: 'GET',
             success: function (response) {
+                console.log("Response : ", response);
                 // Download using the temp file name
-                const downloadUrl = ApiUrl +`/api/excel/download-temp/${response.FileName}`;
+                const downloadUrl = ApiUrl +`/api/excel/download-temp/${response.fileName}`;
 
                 // Create invisible download link
                 const link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = response.FileName;
+                link.download = response.fileName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                console.log('Excel file download initiated:', response.FileName);
+                console.log('Excel file download initiated:', response.fileName);
             },
             error: function (xhr, status, error) {
                 console.error('Error generating Excel file:', error);
@@ -53,11 +54,12 @@
             url: ApiUrl + `/api/excel/temp-path`,
             type: 'GET',
             success: function (response) {
-                console.log('Temp file created for preview:', response.FileName);
+                console.log("Response : ", response);
+                console.log('Temp file created for preview:', response.fileName);
 
                 // Now get the file content for preview using the temp endpoint
                 $.ajax({
-                    url: ApiUrl +`/api/excel/download-temp/${response.FileName}`,
+                    url: ApiUrl +`/api/excel/download-temp/${response.fileName}`,
                     type: 'GET',
                     xhrFields: {
                         responseType: 'blob'

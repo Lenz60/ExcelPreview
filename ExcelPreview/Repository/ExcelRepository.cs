@@ -2,10 +2,14 @@
 using Backend.Models;
 using Backend.ViewModel;
 using Bytescout.Spreadsheet;
+using Bytescout.Spreadsheet.Constants;
 using ExcelPreview.Repository.Interface;
+using GemBox.Spreadsheet;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.Drawing.Printing;
+using ExcelWorksheet = OfficeOpenXml.ExcelWorksheet;
 
 namespace ExcelPreview.Repository
 {
@@ -123,6 +127,10 @@ namespace ExcelPreview.Repository
             ExcelPackage package = null;
             FileStream templateStream = null;
 
+            // Generate unique file names for temp files
+            var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
+            var tempPdfPath = Path.Combine(Path.GetTempPath(), $"temp_pdf_{Guid.NewGuid():N}.pdf");
+
             try
             {
                 // Set EPPlus license context
@@ -137,40 +145,32 @@ namespace ExcelPreview.Repository
                 ExcelWorksheet worksheet = PrepareWorksheet(template, package);
                 PopulateWorksheetAndCalculate(worksheet, package, data);
 
-                // Convert to PDF using EPPlus (Note: EPPlus doesn't have built-in PDF export)
-                // We'll need to save as Excel first, then convert to PDF using another method
-                var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
-                var tempPdfPath = Path.Combine(Path.GetTempPath(), $"temp_pdf_{Guid.NewGuid():N}.pdf");
+                // Save Excel file temporarily
+                package.SaveAs(new FileInfo(tempExcelPath));
 
-                try
+                // Wait for file to be completely written
+                Thread.Sleep(200);
+
+                // Convert to PDF (this will also clean up the temp Excel file)
+                ConvertExcelToPDF(tempExcelPath, tempPdfPath);
+
+                // Verify PDF was created and read content
+                if (!File.Exists(tempPdfPath) || new FileInfo(tempPdfPath).Length == 0)
                 {
-                    // Save Excel file temporarily
-                    package.SaveAs(new FileInfo(tempExcelPath));
-
-                    // For PDF conversion, we'll use Bytescout since it supports PDF export
-                    ConvertExcelToPDF(tempExcelPath, tempPdfPath);
-
-                    // Read PDF content
-                    pdfContent = File.ReadAllBytes(tempPdfPath);
+                    throw new InvalidOperationException("PDF conversion failed - output file is missing or empty");
                 }
-                finally
-                {
-                    // Clean up temp files
-                    try
-                    {
-                        if (File.Exists(tempExcelPath))
-                            File.Delete(tempExcelPath);
-                        if (File.Exists(tempPdfPath))
-                            File.Delete(tempPdfPath);
-                    }
-                    catch { }
-                }
+
+                pdfContent = File.ReadAllBytes(tempPdfPath);
 
                 return pdfContent;
             }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error generating PDF: {ex.Message}", ex);
+            }
             finally
             {
-                // Dispose resources in proper order
+                // Dispose EPPlus resources in proper order
                 try
                 {
                     package?.Dispose();
@@ -189,81 +189,166 @@ namespace ExcelPreview.Repository
                 }
                 catch { }
 
-                // Perform controlled garbage collection after disposal
+                // Clean up ALL temporary files
+                var tempFilesToClean = new[] { tempExcelPath, tempPdfPath };
+
+                foreach (var tempFile in tempFilesToClean)
+                {
+                    try
+                    {
+                        if (File.Exists(tempFile))
+                        {
+                            File.Delete(tempFile);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Warning: Failed to delete temporary file {tempFile}: {ex.Message}");
+                    }
+                }
+
+                // Perform comprehensive garbage collection after all cleanup
                 if (pdfContent != null)
                 {
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
-                    GC.Collect();
+                    GC.Collect(); // Second collection to clean up finalizer queue
+
+                    // Additional cleanup for large objects
+                    GC.WaitForPendingFinalizers();
                 }
             }
         }
 
-
-
         private void ConvertExcelToPDF(string excelPath, string pdfPath)
         {
-            Bytescout.Spreadsheet.Spreadsheet spreadsheet = null;
+            GemBox.Spreadsheet.ExcelFile workbook = null;
 
             try
             {
-                spreadsheet = new Bytescout.Spreadsheet.Spreadsheet();
-                spreadsheet.LoadFromFile(excelPath);
+                // Set license before any GemBox operations
+                SpreadsheetInfo.SetLicense("FREE-LIMITED-KEY");
 
-                // Force calculation to ensure charts are updated
-                spreadsheet.Workbook.Calculate();
-                Thread.Sleep(200);
+                // Load the Excel file
+                workbook = GemBox.Spreadsheet.ExcelFile.Load(excelPath);
 
-                // For Bytescout Spreadsheet 4.x, use direct SaveAsPDF without options
-                // or try to find the correct options class
-                try
+                // Ensure formulas and charts are calculated
+                workbook.Calculate();
+
+                // Enhanced worksheet configuration for charts to prevent cropping
+                if (workbook.Worksheets.Count > 0)
                 {
-                    // Option 1: Try with basic PDF export (most compatible)
-                    spreadsheet.SaveAsPDF(pdfPath);
-                }
-                catch
-                {
-                    // Option 2: Try worksheet-specific PDF export
-                    if (spreadsheet.Workbook.Worksheets.Count > 0)
-                    {
-                        spreadsheet.Workbook.Worksheets[0].SaveAsPDF(pdfPath);
-                    }
+                    var worksheet = workbook.Worksheets[0];
+
+                    // Set optimal print settings for charts beside tables
+                    worksheet.PrintOptions.PaperType = PaperType.A3; // Large paper for complex layouts
+                    worksheet.PrintOptions.Portrait = false; // Wide orientation
+
+                    // Key settings to prevent cropping:
+                    worksheet.PrintOptions.FitWorksheetWidthToPages = 1; // Fit content to 1 page wide
+                    worksheet.PrintOptions.FitWorksheetHeightToPages = 0; // Allow multiple pages tall if needed
+
+                    // Minimal margins for maximum content area
+                    worksheet.PrintOptions.LeftMargin = 0.1;
+                    worksheet.PrintOptions.RightMargin = 0.1;
+                    worksheet.PrintOptions.TopMargin = 0.1;
+                    worksheet.PrintOptions.BottomMargin = 0.1;
+
+                    // Scale settings - let GemBox auto-adjust
+                    worksheet.PrintOptions.AutomaticPageBreakScalingFactor = 100; // Start with 100%
+
+                    // Center content horizontally
+                    worksheet.PrintOptions.HorizontalCentered = true;
+                    worksheet.PrintOptions.VerticalCentered = false; // Don't center vertically to prevent cropping
                 }
 
+                // Simple PDF options - the real control is in worksheet.PrintOptions
+                var pdfOptions = new PdfSaveOptions()
+                {
+                    SelectionType = SelectionType.EntireFile
+                };
+
+                // Save as PDF
+                workbook.Save(pdfPath, pdfOptions);
+
+                // Verify PDF was created successfully
+                if (!File.Exists(pdfPath))
+                {
+                    throw new InvalidOperationException("PDF file was not created successfully");
+                }
+
+                // Allow file operations to complete
                 Thread.Sleep(300);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to convert Excel to PDF: {ex.Message}", ex);
             }
             finally
             {
+                // Clean up workbook reference
+                workbook = null;
+
+                // Clean up temporary Excel file immediately after PDF creation
                 try
                 {
-                    spreadsheet?.Dispose();
+                    if (File.Exists(excelPath))
+                    {
+                        File.Delete(excelPath);
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    // Log but don't throw - cleanup failure shouldn't break the process
+                    Console.WriteLine($"Warning: Failed to delete temporary Excel file {excelPath}: {ex.Message}");
+                }
 
-                // Controlled garbage collection
+                // Perform controlled garbage collection
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
-                GC.Collect();
+                GC.Collect(); // Second collection to clean up finalizer queue
             }
         }
 
 
         /// <summary>
-        /// Generates Excel as PDF and returns temporary file path - async version
+        /// Auto-fits columns to their content width with EPPlus
         /// </summary>
-        /// <returns>Path to temporary PDF file</returns>
+        /// <param name="worksheet">EPPlus ExcelWorksheet</param>
+        private void AutoFitColumns(ExcelWorksheet worksheet)
+        {
+            try
+            {
+                // Method 1: Auto-fit all columns that have data
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                // Method 2: Alternative - Auto-fit specific columns with min/max width
+                // worksheet.Column(2).AutoFit(5, 50); // Column B: min 5, max 50
+                // worksheet.Column(3).AutoFit(10, 100); // Column C: min 10, max 100  
+                // worksheet.Column(4).AutoFit(8, 30); // Column D: min 8, max 30
+
+                // Method 3: Alternative - Auto-fit with global min/max for all columns
+                // worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns(5, 100);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the entire operation
+                Console.WriteLine($"Warning: Failed to auto-fit columns: {ex.Message}");
+
+                // Fallback: Set reasonable default widths
+                worksheet.Column(2).Width = 10; // ID column
+                worksheet.Column(3).Width = 25; // Name column
+                worksheet.Column(4).Width = 15; // Value column
+            }
+        }
+
         public async Task<string> GenerateExcelAsPDFTempFileAsync()
         {
             var data = await GetAllExcelDataAsync();
             return GenerateExcelAsPDFTempFile(data);
         }
 
-        /// <summary>
-        /// Generates Excel as PDF and returns temporary file path using composable functions
-        /// </summary>
-        /// <param name="data">Data to include</param>
-        /// <returns>Path to temporary PDF file</returns>
-        public string GenerateExcelAsPDFTempFile(List<ExcelData> data)
+                public string GenerateExcelAsPDFTempFile(List<ExcelData> data)
         {
             var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
 
@@ -275,7 +360,9 @@ namespace ExcelPreview.Repository
             ExcelPackage template = null;
             ExcelPackage package = null;
             FileStream templateStream = null;
+            
             var tempPdfPath = Path.Combine(Path.GetTempPath(), $"pdf_{Guid.NewGuid():N}.pdf");
+            var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
 
             try
             {
@@ -292,28 +379,23 @@ namespace ExcelPreview.Repository
                 PopulateWorksheetAndCalculateForTempFile(worksheet, package, data);
 
                 // Save Excel temporarily, then convert to PDF
-                var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
+                package.SaveAs(new FileInfo(tempExcelPath));
+                Thread.Sleep(200);
 
-                try
+                // Convert to PDF (this will clean up the temp Excel file)
+                ConvertExcelToPDF(tempExcelPath, tempPdfPath);
+
+                // Verify PDF was created
+                if (!File.Exists(tempPdfPath) || new FileInfo(tempPdfPath).Length == 0)
                 {
-                    package.SaveAs(new FileInfo(tempExcelPath));
-                    ConvertExcelToPDF(tempExcelPath, tempPdfPath);
-                }
-                finally
-                {
-                    try
-                    {
-                        if (File.Exists(tempExcelPath))
-                            File.Delete(tempExcelPath);
-                    }
-                    catch { }
+                    throw new InvalidOperationException("PDF generation failed");
                 }
 
                 return tempPdfPath;
             }
             finally
             {
-                // Dispose resources in proper order
+                // Dispose EPPlus resources in proper order
                 try
                 {
                     package?.Dispose();
@@ -331,6 +413,19 @@ namespace ExcelPreview.Repository
                     templateStream?.Dispose();
                 }
                 catch { }
+
+                // Clean up temporary Excel file (PDF file should remain for caller)
+                try
+                {
+                    if (File.Exists(tempExcelPath))
+                    {
+                        File.Delete(tempExcelPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Warning: Failed to delete temporary Excel file {tempExcelPath}: {ex.Message}");
+                }
 
                 // Controlled garbage collection
                 GC.Collect();
@@ -386,6 +481,9 @@ namespace ExcelPreview.Repository
 
             // Force calculation to ensure charts and formulas are updated
             package.Workbook.Calculate();
+
+            // Auto-fit columns to content width - EPPlus method
+            AutoFitColumns(worksheet);
 
             // Allow calculation to complete
             Thread.Sleep(100);
@@ -520,6 +618,9 @@ namespace ExcelPreview.Repository
 
                 currentRow++;
             }
+
+            // Auto-fit columns to content width - EPPlus method
+            AutoFitColumns(worksheet);
 
             // Force calculation for temp file operations
             package.Workbook.Calculate();

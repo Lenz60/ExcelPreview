@@ -208,6 +208,40 @@ namespace ExcelPreview.Controllers
             }
         }
 
+        [HttpGet("preview-pdf-temp/{fileName}")]
+        public IActionResult PreviewPDFFromTemp(string fileName)
+        {
+            try
+            {
+                var tempDir = Path.GetTempPath();
+                var filePath = Path.Combine(tempDir, fileName);
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound("Temporary PDF file not found or has been cleaned up.");
+                }
+
+                var fileContent = System.IO.File.ReadAllBytes(filePath);
+
+                // Clean up the temp file after reading
+                try
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                catch
+                {
+                    // Ignore cleanup errors
+                }
+
+                // Return PDF for inline viewing (no filename = no download prompt)
+                return File(fileContent, "application/pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error previewing PDF file: {ex.Message}");
+            }
+        }
+
         // Additional endpoint to generate Excel with custom data (for consistency)
         [HttpPost("generate-excel")]
         public IActionResult GenerateExcelWithData([FromBody] List<ExcelData> data)

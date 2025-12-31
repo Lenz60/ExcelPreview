@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Bytescout.Spreadsheet" Version="4.7.1.2054" />
     <PackageReference Include="EPPlus" Version="7.0.6" />
+    <PackageReference Include="GemBox.Spreadsheet" Version="2025.12.105" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.1">

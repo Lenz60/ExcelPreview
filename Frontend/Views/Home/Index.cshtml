@@ -3,26 +3,32 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Excel</h1>
     <button id="BtnView" class="btn btn-primary me-2">Download Excel</button>
     <button id="BtnPreview" class="btn btn-success">Preview Excel</button>
 </div>
 
-<!-- Simplified Excel Preview Modal -->
-<div class="modal fade" id="excelPreviewModal" tabindex="-1">
+<div class="text-center">
+    <h1 class="display-4">Pdf</h1>
+    <button id="BtnViewPdf" class="btn btn-primary me-2">Download Pdf</button>
+    <button id="BtnPreviewPdf" class="btn btn-success">Preview Pdf</button>
+</div>
+
+<!-- Universal Preview Modal (Reusable for both Excel and PDF) -->
+<div class="modal fade" id="previewModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Excel Preview</h5>
+                <h5 class="modal-title">File Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="loadingSpinner" class="text-center">
                     <div class="spinner-border"></div>
-                    <p class="mt-2">Loading Excel preview...</p>
+                    <p id="loadingMessage" class="mt-2">Loading preview...</p>
                 </div>
-                <div id="excelPreviewContainer" style="display: none;">
-                    <div id="excelTableContainer" class="table-responsive"></div>
+                <div id="previewContainer" style="display: none;">
+                    <div id="fileContentContainer"></div>
                 </div>
                 <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
             </div>

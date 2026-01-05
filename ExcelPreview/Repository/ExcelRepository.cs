@@ -552,6 +552,7 @@ namespace ExcelPreview.Repository
             finally
             {
                 // Dispose resources in proper order
+                // Commented the function that deletes file in temp folder
                 try
                 {
                     outputStream?.Dispose();

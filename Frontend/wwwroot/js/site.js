@@ -28,6 +28,21 @@
         previewFile();
     });
 
+    $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true  // This is CRITICAL for cross-origin cookies
+        },
+        crossDomain: true
+    });
+
+
+    function getCookie(name) {
+        return document.cookie.split('; ').reduce((r, v) => {
+            const parts = v.split('=');
+            return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+        }, '');
+    }
+
     function downloadExcelFile() {
         // Get temp file path first
         $.ajax({
@@ -36,7 +51,7 @@
             success: function (response) {
                 console.log("Response : ", response);
                 // Download using the temp file name
-                const downloadUrl = ApiUrl + `/api/excel/download-temp/${response.fileName}`;
+                const downloadUrl = ApiUrl + `/api/excel/download-temp/`;
 
                 // Create invisible download link
                 const link = document.createElement('a');
@@ -63,7 +78,7 @@
             success: function (response) {
                 console.log("Response : ", response);
                 // Download using the temp file name
-                const downloadUrl = ApiUrl + `/api/excel/download-pdf-temp/${response.fileName}`;
+                const downloadUrl = ApiUrl + `/api/excel/download-pdf-temp`;
 
                 // Create invisible download link
                 const link = document.createElement('a');
@@ -105,119 +120,149 @@
 
     function previewPdfFile() {
         // Get temp file path first
+        const tempFileName = getCookie('tempPdfFileName');
+        if (!tempFileName) {
+            $.ajax({
+                url: ApiUrl + `/api/excel/pdf-temp-path`,
+                type: 'GET',
+                success: function (response) {
+                    console.log("PDF Response: ", response);
+                    console.log('Temp PDF file created for preview:', response.fileName);
+
+                    loadPdfPreview(response.fileName);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error generating PDF temp file:', error);
+                    showError('Failed to generate PDF file for preview.');
+                }
+            });
+
+        } else {
+            loadPdfPreview(tempFileName);
+            console.log('Temp PDF file get from cookie:', tempFileName);
+        }
+    }
+
+    function loadExcelPreview(fileName) {
         $.ajax({
-            url: ApiUrl + `/api/excel/pdf-temp-path`,
+            url: ApiUrl + `/api/excel/preview-temp/${fileName}`, // 🔑 Use preview endpoint
             type: 'GET',
-            success: function (response) {
-                console.log("PDF Response: ", response);
-                console.log('Temp PDF file created for preview:', response.fileName);
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (data) {
+                const fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
-                // Use the PREVIEW endpoint instead of download endpoint
-                const pdfPreviewUrl = ApiUrl + `/api/excel/preview-pdf-temp/${response.fileName}`;
+                        // Get first sheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
 
-                // Method 1: Using iframe (most compatible)
+                        // Convert to HTML
+                        const htmlTable = XLSX.utils.sheet_to_html(worksheet);
+
+                        // Display in modal
+                        $('#fileContentContainer').html(`
+                            <div class="table-responsive">
+                                ${htmlTable}
+                            </div>
+                        `);
+                        $('#fileContentContainer table').addClass('table table-striped table-bordered table-sm');
+
+                        $('#loadingSpinner').hide();
+                        $('#previewContainer').show();
+
+                    } catch (error) {
+                        showError('Failed to parse Excel file: ' + error.message);
+                    }
+                };
+
+                fileReader.readAsArrayBuffer(data);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error previewing temp Excel file:', error);
+                showError('Failed to load Excel file for preview.');
+            }
+        });
+    }
+
+    function loadPdfPreview(fileName) {
+        $.ajax({
+            url: ApiUrl + `/api/excel/preview-pdf-temp/${fileName}`,
+            type: 'GET',
+            xhrFields: {
+                responseType: 'blob',
+                withCredentials: true
+            },
+            success: function (blob) {
+                console.log('✅ PDF blob received, size:', blob.size);
+
+                // Create blob URL for the PDF
+                const blobUrl = URL.createObjectURL(blob);
+                console.log('🔗 Blob URL created:', blobUrl);
+
                 const pdfEmbed = `
                     <div class="pdf-container" style="width: 100%; height: 700px; border: 1px solid #ddd;">
-                        <iframe src="${pdfPreviewUrl}" 
+                        <iframe src="${blobUrl}" 
                                 width="100%" 
                                 height="100%" 
                                 frameborder="0" 
                                 style="border: none;">
                             <div class="alert alert-info text-center">
-                                <p><i class="fas fa-exclamation-triangle"></i> PDF preview is not supported in your browser.</p>
-                                <p><a href="${pdfPreviewUrl}" target="_blank" class="btn btn-primary">Open PDF in new tab</a></p>
+                                <p>PDF preview not supported. <a href="${blobUrl}" target="_blank" class="btn btn-primary">Open PDF</a></p>
                             </div>
                         </iframe>
                     </div>
                 `;
 
-                // Method 2: Alternative using object tag (uncomment if needed)
-                /*
-                const pdfEmbed = `
-                    <div class="pdf-container" style="width: 100%; height: 700px;">
-                        <object data="${pdfPreviewUrl}" type="application/pdf" width="100%" height="100%">
-                            <div class="alert alert-info text-center">
-                                <p><i class="fas fa-exclamation-triangle"></i> PDF preview is not supported in your browser.</p>
-                                <p><a href="${pdfPreviewUrl}" target="_blank" class="btn btn-primary">Open PDF in new tab</a></p>
-                            </div>
-                        </object>
-                    </div>
-                `;
-                */
-
-                // Display PDF in modal
                 $('#fileContentContainer').html(pdfEmbed);
-
                 $('#loadingSpinner').hide();
                 $('#previewContainer').show();
 
+                // Clean up blob URL after 5 minutes
+                setTimeout(() => {
+                    URL.revokeObjectURL(blobUrl);
+                    console.log('🧹 Blob URL cleaned up');
+                }, 300000);
             },
             error: function (xhr, status, error) {
-                console.error('Error generating PDF temp file:', error);
-                showError('Failed to generate PDF file for preview.');
+                console.error('❌ Error loading PDF blob:', error);
+                console.error('Status:', xhr.status, 'Response:', xhr.responseText);
+                showError(`Failed to load PDF file: ${error}`);
             }
         });
     }
 
     function previewExcelFile() {
         // Get temp file path first
-        $.ajax({
-            url: ApiUrl + `/api/excel/temp-path`,
-            type: 'GET',
-            success: function (response) {
-                console.log("Excel Response: ", response);
-                console.log('Temp Excel file created for preview:', response.fileName);
+        const tempFileName = getCookie('tempExcelFileName');
+        console.log("Temp File Name from cookie: ", tempFileName);
+        if (!tempFileName) {
+            $.ajax({
+                url: ApiUrl + `/api/excel/temp-path`,
+                type: 'GET',
+                success: function (response) {
+                    console.log("Excel Response: ", response);
+                    console.log('Temp Excel file created for preview:', response.fileName);
+                    //localStorage.setItem('tempExcelFileName', response.fileName);
 
-                // Now get the file content for preview using the temp endpoint
-                $.ajax({
-                    url: ApiUrl + `/api/excel/download-temp/${response.fileName}`,
-                    type: 'GET',
-                    xhrFields: {
-                        responseType: 'blob'
-                    },
-                    success: function (data) {
-                        const fileReader = new FileReader();
-                        fileReader.onload = function (e) {
-                            try {
-                                const arrayBuffer = e.target.result;
-                                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    // Now get the file content for preview using the temp endpoint
+                    loadExcelPreview(response.fileName);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error generating Excel temp file:', error);
+                    showError('Failed to generate Excel file for preview.');
+                }
+            });
+        } else {
+            console.log('Temp Excel file get from localstorage:', tempFileName);
+            loadExcelPreview(tempFileName);
 
-                                // Get first sheet
-                                const firstSheetName = workbook.SheetNames[0];
-                                const worksheet = workbook.Sheets[firstSheetName];
-
-                                // Convert to HTML
-                                const htmlTable = XLSX.utils.sheet_to_html(worksheet);
-
-                                // Display in modal
-                                $('#fileContentContainer').html(`
-                                    <div class="table-responsive">
-                                        ${htmlTable}
-                                    </div>
-                                `);
-                                $('#fileContentContainer table').addClass('table table-striped table-bordered table-sm');
-
-                                $('#loadingSpinner').hide();
-                                $('#previewContainer').show();
-
-                            } catch (error) {
-                                showError('Failed to parse Excel file: ' + error.message);
-                            }
-                        };
-
-                        fileReader.readAsArrayBuffer(data);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error downloading temp Excel file:', error);
-                        showError('Failed to load Excel file for preview.');
-                    }
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error('Error generating Excel temp file:', error);
-                showError('Failed to generate Excel file for preview.');
-            }
-        });
+        }
     }
 
     function showError(message) {

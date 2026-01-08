@@ -246,7 +246,7 @@ namespace ExcelPreview.Repository
 
                     // Key settings to prevent cropping:
                     worksheet.PrintOptions.FitWorksheetWidthToPages = 1; // Fit content to 1 page wide
-                    worksheet.PrintOptions.FitWorksheetHeightToPages = 0; // Allow multiple pages tall if needed
+                    worksheet.PrintOptions.FitWorksheetHeightToPages = 1; // Allow multiple pages tall if needed
 
                     // Minimal margins for maximum content area
                     worksheet.PrintOptions.LeftMargin = 0.1;
@@ -258,7 +258,7 @@ namespace ExcelPreview.Repository
                     worksheet.PrintOptions.AutomaticPageBreakScalingFactor = 100; // Start with 100%
 
                     // Center content horizontally
-                    worksheet.PrintOptions.HorizontalCentered = true;
+                    worksheet.PrintOptions.HorizontalCentered = false;
                     worksheet.PrintOptions.VerticalCentered = false; // Don't center vertically to prevent cropping
                 }
 
@@ -348,7 +348,7 @@ namespace ExcelPreview.Repository
             return GenerateExcelAsPDFTempFile(data);
         }
 
-                public string GenerateExcelAsPDFTempFile(List<ExcelData> data)
+        public string GenerateExcelAsPDFTempFile(List<ExcelData> data)
         {
             var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "ExcelFile.xlsx");
 
@@ -360,7 +360,7 @@ namespace ExcelPreview.Repository
             ExcelPackage template = null;
             ExcelPackage package = null;
             FileStream templateStream = null;
-            
+
             var tempPdfPath = Path.Combine(Path.GetTempPath(), $"pdf_{Guid.NewGuid():N}.pdf");
             var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
 
@@ -442,6 +442,24 @@ namespace ExcelPreview.Repository
             {
                 // Copy the first worksheet from template
                 var templateWorksheet = template.Workbook.Worksheets[0];
+                worksheet = package.Workbook.Worksheets.Add(templateWorksheet.Name, templateWorksheet);
+            }
+            else
+            {
+                // Create new worksheet if template doesn't have one
+                worksheet = package.Workbook.Worksheets.Add("Sheet1");
+            }
+
+            return worksheet;
+        }
+        private ExcelWorksheet PrepareWorksheetConvertOnly(ExcelPackage template, ExcelPackage package)
+        {
+            ExcelWorksheet worksheet;
+
+            if (template.Workbook.Worksheets.Count > 0)
+            {
+                // Copy the first worksheet from template
+                var templateWorksheet = template.Workbook.Worksheets[1];
                 worksheet = package.Workbook.Worksheets.Add(templateWorksheet.Name, templateWorksheet);
             }
             else
@@ -628,6 +646,92 @@ namespace ExcelPreview.Repository
 
             // Allow calculation to complete - longer wait for temp file operations
             Thread.Sleep(200);
+        }
+
+        public string ExcelToPdf()
+        {
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "psikogram.xlsx");
+
+            if (!File.Exists(templatePath))
+            {
+                throw new FileNotFoundException($"Excel template not found at: {templatePath}");
+            }
+
+            ExcelPackage template = null;
+            ExcelPackage package = null;
+            FileStream templateStream = null;
+
+            var tempPdfPath = Path.Combine(Path.GetTempPath(), $"pdf_{Guid.NewGuid():N}.pdf");
+            var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_excel_{Guid.NewGuid():N}.xlsx");
+
+            try
+            {
+                // Set EPPlus license context
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                // Use FileStream to load template
+                templateStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                template = new ExcelPackage(templateStream);
+                package = new ExcelPackage();
+
+                // Reuse existing composable functions
+                ExcelWorksheet worksheet = PrepareWorksheetConvertOnly(template, package);
+                //PopulateWorksheetAndCalculateForTempFile(worksheet, package, data);
+
+                // Save Excel temporarily, then convert to PDF
+                package.SaveAs(new FileInfo(tempExcelPath));
+                Thread.Sleep(200);
+
+                // Convert to PDF (this will clean up the temp Excel file)
+                ConvertExcelToPDF(tempExcelPath, tempPdfPath);
+
+                // Verify PDF was created
+                if (!File.Exists(tempPdfPath) || new FileInfo(tempPdfPath).Length == 0)
+                {
+                    throw new InvalidOperationException("PDF generation failed");
+                }
+
+                return tempPdfPath;
+            }
+            finally
+            {
+                // Dispose EPPlus resources in proper order
+                try
+                {
+                    package?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    template?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    templateStream?.Dispose();
+                }
+                catch { }
+
+                // Clean up temporary Excel file (PDF file should remain for caller)
+                try
+                {
+                    if (File.Exists(tempExcelPath))
+                    {
+                        File.Delete(tempExcelPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Warning: Failed to delete temporary Excel file {tempExcelPath}: {ex.Message}");
+                }
+
+                // Controlled garbage collection
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
         }
     }
 }

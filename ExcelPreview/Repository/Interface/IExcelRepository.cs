@@ -18,5 +18,8 @@ namespace ExcelPreview.Repository.Interface
         byte[] GenerateExcelAsPDF(List<ExcelData> data);
         string GenerateExcelAsPDFTempFile(List<ExcelData> data);
         Task<string> GenerateExcelAsPDFTempFileAsync();
+
+        // Convert Excel to Pdf Only
+        string ExcelToPdf();
     }
 }

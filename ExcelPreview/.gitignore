@@ -13,6 +13,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Appsettings
+appsettings.json
+
 # API KEY GPT
 Controllers/AnalyzerGPTController.cs
 

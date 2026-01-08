@@ -1,0 +1,12 @@
+{
+  "ConnectionStrings": {
+    "ExcelPreviewContext": "server = <SERVER NAME>; Database = ExcelPreview; user id = <USERNAME>; password = <PASSWORD>; Encrypt = false; TrustServerCertificate=Yes; MultipleActiveResultSets=True;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

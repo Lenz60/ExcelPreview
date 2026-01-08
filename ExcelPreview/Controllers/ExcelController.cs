@@ -467,5 +467,25 @@ namespace ExcelPreview.Controllers
                 return BadRequest($"Error generating Excel with custom data: {ex.Message}");
             }
         }
+
+        [HttpGet("convert-excel-pdf")]
+        public IActionResult ConvertExcelToPdf()
+        {
+            try
+            {
+                var pdfFilePath = _excelRepository.ExcelToPdf();
+                var fileName = Path.GetFileName(pdfFilePath);
+                var fileContent = System.IO.File.ReadAllBytes(pdfFilePath);
+                return File(
+                    fileContent,
+                    "application/pdf",
+                    fileName
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error converting Excel to PDF: {ex.Message}");
+            }
+        }
     }
 }
